@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/page_productos"
+        android:icon="@drawable/boton_producto"
+        android:title="Productos"/>
+
+    <item
+        android:id="@+id/page_proveedores"
+        android:icon="@drawable/boton_proveedor"
+        android:title="Proveedores"/>
+
+    <item
+        android:id="@+id/page_ventas"
+        android:icon="@drawable/boton_ventas"
+        android:title="Ventas"/>
+
+    <item
+        android:id="@+id/page_reportes"
+        android:icon="@drawable/boton_reporte"
+        android:title="Reportes"/>
+</menu>

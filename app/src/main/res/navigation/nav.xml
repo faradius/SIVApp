@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav"
+    app:startDestination="@id/page_ventas">
+
+    <fragment
+        android:id="@+id/page_productos"
+        android:name="com.developerscracks.sivapp.ui.productos.view.ProductosFragment"
+        android:label="fragment_productos"
+        tools:layout="@layout/fragment_productos" />
+    <fragment
+        android:id="@+id/page_proveedores"
+        android:name="com.developerscracks.sivapp.ui.proveedores.view.ProveedoresFragment"
+        android:label="fragment_proveedores"
+        tools:layout="@layout/fragment_proveedores" />
+    <fragment
+        android:id="@+id/page_reportes"
+        android:name="com.developerscracks.sivapp.ui.reportes.view.ReportesFragment"
+        android:label="fragment_reportes"
+        tools:layout="@layout/fragment_reportes" />
+    <fragment
+        android:id="@+id/page_ventas"
+        android:name="com.developerscracks.sivapp.ui.ventas.view.VentasFragment"
+        android:label="fragment_ventas"
+        tools:layout="@layout/fragment_ventas" />
+</navigation>
