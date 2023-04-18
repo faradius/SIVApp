@@ -8,6 +8,7 @@ import androidx.lifecycle.viewModelScope
 import com.developerscracks.sivapp.data.model.producto.Producto
 import com.developerscracks.sivapp.data.model.producto.ProductoResponse
 import com.developerscracks.sivapp.data.network.RetrofitClient
+import com.developerscracks.sivapp.utils.Permisos
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -121,8 +122,8 @@ class ProductosViewModel:ViewModel() {
     }
 
 
-    /*fun checkCamaraPermiso(activity: Activity): Boolean{
-        val isPermiso = Permiso().checkCamaraPermiso(activity)
+    fun checkCamaraPermiso(activity: Activity): Boolean{
+        val isPermiso = Permisos().checkCamaraPermiso(activity)
         return isPermiso
-    }*/
+    }
 }
