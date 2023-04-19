@@ -2,11 +2,15 @@ package com.developerscracks.sivapp.ui.productos.view
 
 import android.app.AlertDialog
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
 import androidx.fragment.app.Fragment
 import android.view.View
 import android.widget.ArrayAdapter
 import android.widget.EditText
 import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.SearchView
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.developerscracks.sivapp.R
@@ -26,24 +30,30 @@ class ProductosFragment : Fragment(R.layout.fragment_productos), ProductoAdapter
     private lateinit var adapter: ProductoAdapter
 
     private lateinit var etCodigo:EditText
+    private var pantalla = ""
 
     //Este codigo realiza el escaneo del codigo de barras
     private var codigoLeido = ""
     private val barcodeLauncher = registerForActivityResult(ScanContract()){result ->
-        codigoLeido = ""
+
         if(result.contents == null){
             Toasty.error(requireContext(), "CANCELADO", Toasty.LENGTH_SHORT, true).show()
-        }else{
+        }else if (pantalla == "PantallaProductos" && result.contents != null){
+            codigoLeido = result.contents.toString()
+            binding.etBusqueda.setText(codigoLeido)
+
+        }else if (pantalla == "AlertDialog" && result.contents != null){
             codigoLeido = result.contents.toString()
             etCodigo.setText(codigoLeido)
         }
-
     }
 
     private lateinit var viewModel: ProductosViewModel
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         binding = FragmentProductosBinding.bind(view)
+
+        (activity as AppCompatActivity).supportActionBar!!.title = "Productos"
 
         viewModel = ViewModelProvider(this)[ProductosViewModel::class.java]
 
@@ -58,6 +68,32 @@ class ProductosFragment : Fragment(R.layout.fragment_productos), ProductoAdapter
         viewModel.mensaje.observe(viewLifecycleOwner){mensaje->
             Toasty.info(requireContext(), mensaje, Toasty.LENGTH_SHORT, true).show()
         }
+
+        binding.ibtnBuscar.setOnClickListener {
+            barcodeLauncher.launch(ScanOptions())
+            pantalla = "PantallaProductos"
+        }
+
+        binding.etBusqueda.addTextChangedListener(object : TextWatcher{
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
+
+            }
+
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+
+            }
+
+            override fun afterTextChanged(editText: Editable?) {
+                if (editText.isNullOrEmpty()){
+                    viewModel.getProductos()
+                }else{
+                    viewModel.filtrarListaProductos(editText.toString().trim())
+                }
+
+                //Cada vez que haya cambios en el adaptador se lo tenemos que notificar
+                adapter.notifyDataSetChanged()
+            }
+        })
 
         binding.ibtnAdd.setOnClickListener {
             alertDialogAddUpdate("add")
@@ -114,8 +150,11 @@ class ProductosFragment : Fragment(R.layout.fragment_productos), ProductoAdapter
             val isPermiso = viewModel.checkCamaraPermiso(requireActivity())
             if (isPermiso){
                 barcodeLauncher.launch(ScanOptions())
+                pantalla = "AlertDialog"
             }
         }
+
+
 
         if(accion == "update"){
             etCodigo.setText(idProducto)

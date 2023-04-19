@@ -62,7 +62,7 @@ class ProductosViewModel:ViewModel() {
     fun filtrarListaProductos(producto: String){
         val listaFiltrada: MutableList<Producto> = mutableListOf()
         for (prod in _listaProductos.value!!){
-            if (prod.codProducto.contains(producto) || prod.nomProducto.contains(producto)){
+            if (prod.codProducto.contains(producto) || prod.nomProducto.contains(producto,true)){
                 listaFiltrada.add(prod)
             }
         }
