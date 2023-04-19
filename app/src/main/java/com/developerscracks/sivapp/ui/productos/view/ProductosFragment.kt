@@ -70,7 +70,15 @@ class ProductosFragment : Fragment(R.layout.fragment_productos), ProductoAdapter
         binding.rvProductos.adapter = adapter
     }
 
-    private fun alertDialogAddUpdate(accion: String){
+    private fun alertDialogAddUpdate(
+        accion: String,
+        idProducto: String = "",
+        nomProducto: String = "",
+        descripcion: String = "",
+        nomProveedor: String = "",
+        almacen: Int = -1,
+        precio: Double = -1.0
+    ){
         val builder = AlertDialog.Builder(requireContext())
         val inflater = requireActivity().layoutInflater
         bindingAlertDialog = AlertDialogProductoBinding.inflate(inflater)
@@ -79,6 +87,8 @@ class ProductosFragment : Fragment(R.layout.fragment_productos), ProductoAdapter
 
         if(accion == "add"){
             builder.setTitle("Agregar producto")
+        }else{
+            builder.setTitle("Editar Producto")
         }
 
         builder.setCancelable(false)
@@ -107,6 +117,16 @@ class ProductosFragment : Fragment(R.layout.fragment_productos), ProductoAdapter
             }
         }
 
+        if(accion == "update"){
+            etCodigo.setText(idProducto)
+            etCodigo.isEnabled = false
+            ibtnEscaner.visibility = View.GONE
+            etNomProducto.setText(nomProducto)
+            etDescripcion.setText(descripcion)
+            tvNomProveedor.setText(nomProveedor)
+            etPrecio.setText(precio.toString())
+            etAlmacen.setText(almacen.toString())
+        }
 
 
         builder.setPositiveButton("ACEPTAR"){ _,_ ->
@@ -131,7 +151,15 @@ class ProductosFragment : Fragment(R.layout.fragment_productos), ProductoAdapter
     }
 
     override fun editarProducto(prod: Producto) {
-        //TODO("Not yet implemented")
+        alertDialogAddUpdate(
+            "update",
+            prod.codProducto,
+            prod.nomProducto,
+            prod.descripcion,
+            prod.nomProveedor,
+            prod.almacen,
+            prod.precio
+        )
     }
 
 }
