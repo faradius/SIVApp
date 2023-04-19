@@ -5,6 +5,7 @@ import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.View
 import android.widget.ArrayAdapter
+import android.widget.EditText
 import android.widget.Toast
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -13,6 +14,8 @@ import com.developerscracks.sivapp.data.model.producto.Producto
 import com.developerscracks.sivapp.databinding.AlertDialogProductoBinding
 import com.developerscracks.sivapp.databinding.FragmentProductosBinding
 import com.developerscracks.sivapp.ui.productos.viewmodel.ProductosViewModel
+import com.journeyapps.barcodescanner.ScanContract
+import com.journeyapps.barcodescanner.ScanOptions
 import es.dmoral.toasty.Toasty
 
 
@@ -21,6 +24,21 @@ class ProductosFragment : Fragment(R.layout.fragment_productos), ProductoAdapter
     private lateinit var binding: FragmentProductosBinding
     private lateinit var bindingAlertDialog: AlertDialogProductoBinding
     private lateinit var adapter: ProductoAdapter
+
+    private lateinit var etCodigo:EditText
+
+    //Este codigo realiza el escaneo del codigo de barras
+    private var codigoLeido = ""
+    private val barcodeLauncher = registerForActivityResult(ScanContract()){result ->
+        codigoLeido = ""
+        if(result.contents == null){
+            Toasty.error(requireContext(), "CANCELADO", Toasty.LENGTH_SHORT, true).show()
+        }else{
+            codigoLeido = result.contents.toString()
+            etCodigo.setText(codigoLeido)
+        }
+
+    }
 
     private lateinit var viewModel: ProductosViewModel
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -65,7 +83,7 @@ class ProductosFragment : Fragment(R.layout.fragment_productos), ProductoAdapter
 
         builder.setCancelable(false)
 
-        val etCodigo = bindingAlertDialog.etCodigo
+        etCodigo = bindingAlertDialog.etCodigo
         val ibtnEscaner = bindingAlertDialog.ibtnEscaner
         val etNomProducto = bindingAlertDialog.etNomProducto
         val etDescripcion = bindingAlertDialog.etDescripcion
@@ -81,6 +99,15 @@ class ProductosFragment : Fragment(R.layout.fragment_productos), ProductoAdapter
                 requireContext(), android.R.layout.simple_spinner_item, it
             )
         }
+
+        ibtnEscaner.setOnClickListener {
+            val isPermiso = viewModel.checkCamaraPermiso(requireActivity())
+            if (isPermiso){
+                barcodeLauncher.launch(ScanOptions())
+            }
+        }
+
+
 
         builder.setPositiveButton("ACEPTAR"){ _,_ ->
             viewModel.validarCampos(
