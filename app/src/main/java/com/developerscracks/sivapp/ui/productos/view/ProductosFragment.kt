@@ -3,12 +3,9 @@ package com.developerscracks.sivapp.ui.productos.view
 import android.app.AlertDialog
 import android.os.Bundle
 import androidx.fragment.app.Fragment
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
 import android.widget.ArrayAdapter
-import android.widget.ImageButton
-import android.widget.ImageView
+import android.widget.Toast
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.developerscracks.sivapp.R
@@ -16,12 +13,13 @@ import com.developerscracks.sivapp.data.model.producto.Producto
 import com.developerscracks.sivapp.databinding.AlertDialogProductoBinding
 import com.developerscracks.sivapp.databinding.FragmentProductosBinding
 import com.developerscracks.sivapp.ui.productos.viewmodel.ProductosViewModel
+import es.dmoral.toasty.Toasty
 
 
 class ProductosFragment : Fragment(R.layout.fragment_productos), ProductoAdapter.OnItemClicked {
 
     private lateinit var binding: FragmentProductosBinding
-    private lateinit var bindingAlert: AlertDialogProductoBinding
+    private lateinit var bindingAlertDialog: AlertDialogProductoBinding
     private lateinit var adapter: ProductoAdapter
 
     private lateinit var viewModel: ProductosViewModel
@@ -39,8 +37,12 @@ class ProductosFragment : Fragment(R.layout.fragment_productos), ProductoAdapter
             adapter.notifyDataSetChanged()
         }
 
+        viewModel.mensaje.observe(viewLifecycleOwner){mensaje->
+            Toasty.info(requireContext(), mensaje, Toasty.LENGTH_SHORT, true).show()
+        }
+
         binding.ibtnAdd.setOnClickListener {
-            alertDialogAddUpdate()
+            alertDialogAddUpdate("add")
         }
     }
 
@@ -50,21 +52,27 @@ class ProductosFragment : Fragment(R.layout.fragment_productos), ProductoAdapter
         binding.rvProductos.adapter = adapter
     }
 
-    private fun alertDialogAddUpdate(){
+    private fun alertDialogAddUpdate(accion: String){
         val builder = AlertDialog.Builder(requireContext())
         val inflater = requireActivity().layoutInflater
-        bindingAlert = AlertDialogProductoBinding.inflate(inflater)
+        bindingAlertDialog = AlertDialogProductoBinding.inflate(inflater)
 
-        builder.setView(bindingAlert.root)
+        builder.setView(bindingAlertDialog.root)
+
+        if(accion == "add"){
+            builder.setTitle("Agregar producto")
+        }
+
         builder.setCancelable(false)
 
-        val ibtnEscaner = bindingAlert.ibtnEscaner
-        val etNomProducto = bindingAlert.etNomProducto
-        val etDescripcion = bindingAlert.etDescripcion
-        val spiProveedores = bindingAlert.spiProveedor
-        val tvNomProveedor = bindingAlert.tvNomProveedor
-        val etPrecio = bindingAlert.etPrecio
-        val etAlmacen = bindingAlert.etAlmacen
+        val etCodigo = bindingAlertDialog.etCodigo
+        val ibtnEscaner = bindingAlertDialog.ibtnEscaner
+        val etNomProducto = bindingAlertDialog.etNomProducto
+        val etDescripcion = bindingAlertDialog.etDescripcion
+        val spiProveedores = bindingAlertDialog.spiProveedor
+        val tvNomProveedor = bindingAlertDialog.tvNomProveedor
+        val etPrecio = bindingAlertDialog.etPrecio
+        val etAlmacen = bindingAlertDialog.etAlmacen
 
         viewModel.getNomProveedores()
 
@@ -75,7 +83,17 @@ class ProductosFragment : Fragment(R.layout.fragment_productos), ProductoAdapter
         }
 
         builder.setPositiveButton("ACEPTAR"){ _,_ ->
+            viewModel.validarCampos(
+                accion,
+                etCodigo.text.toString().trim(),
+                etNomProducto.text.toString().trim(),
+                etDescripcion.text.toString().trim(),
+                spiProveedores.selectedItem.toString(),
+                etPrecio.text.toString().trim(),
+                etAlmacen.text.toString().trim()
+            )
 
+            adapter.notifyDataSetChanged()
         }
 
         builder.setNegativeButton("CANCELAR"){ _,_ ->
