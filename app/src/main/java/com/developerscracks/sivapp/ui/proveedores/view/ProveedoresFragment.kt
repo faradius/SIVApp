@@ -1,5 +1,6 @@
 package com.developerscracks.sivapp.ui.proveedores.view
 
+import android.content.ActivityNotFoundException
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
@@ -14,6 +15,7 @@ import com.developerscracks.sivapp.R
 import com.developerscracks.sivapp.data.model.proveedor.Proveedor
 import com.developerscracks.sivapp.databinding.FragmentProveedoresBinding
 import com.developerscracks.sivapp.ui.proveedores.viewmodel.ProveedoresViewModel
+import es.dmoral.toasty.Toasty
 
 
 class ProveedoresFragment : Fragment(R.layout.fragment_proveedores), ProveedorAdapter.OnItemClickedProv {
@@ -51,7 +53,22 @@ class ProveedoresFragment : Fragment(R.layout.fragment_proveedores), ProveedorAd
     }
 
     override fun enviarEmail(email: String) {
-        TODO("Not yet implemented")
+        val to = arrayOf(email)
+        val cc = arrayOf("")
+
+        val emailIntent = Intent(Intent.ACTION_SEND)
+        emailIntent.data = Uri.parse("mailto:")
+        emailIntent.type = "text/plain"
+        emailIntent.putExtra(Intent.EXTRA_EMAIL, to)
+        emailIntent.putExtra(Intent.EXTRA_CC, cc)
+        emailIntent.putExtra(Intent.EXTRA_SUBJECT, "Asunto")
+        emailIntent.putExtra(Intent.EXTRA_TEXT, "Escribe aqui tu mensaje")
+
+        try {
+            requireContext().startActivity(Intent.createChooser(emailIntent, "Enviar email . . ."))
+        }catch (ex: ActivityNotFoundException){
+            Toasty.error(requireContext(), "No tienes cliente de email instalada", Toasty.LENGTH_SHORT, true).show()
+        }
     }
 
     override fun editarProveedor(prov: Proveedor) {
