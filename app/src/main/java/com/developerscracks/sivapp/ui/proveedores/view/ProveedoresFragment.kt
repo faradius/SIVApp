@@ -1,5 +1,7 @@
 package com.developerscracks.sivapp.ui.proveedores.view
 
+import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
@@ -43,7 +45,9 @@ class ProveedoresFragment : Fragment(R.layout.fragment_proveedores), ProveedorAd
     }
 
     override fun llamarProveedor(tel: String) {
-        TODO("Not yet implemented")
+        val intent = Intent(Intent.ACTION_DIAL)
+        intent.data = Uri.parse("tel: $tel")
+        requireContext().startActivity(intent)
     }
 
     override fun enviarEmail(email: String) {
