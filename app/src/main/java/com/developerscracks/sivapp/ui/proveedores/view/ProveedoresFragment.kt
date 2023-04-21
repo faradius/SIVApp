@@ -5,6 +5,8 @@ import android.content.ActivityNotFoundException
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -51,9 +53,34 @@ class ProveedoresFragment : Fragment(R.layout.fragment_proveedores), ProveedorAd
         binding.ibtnAdd.setOnClickListener {
             alertDialogAddUpdate("add")
         }
+
+        binding.etBusqueda.addTextChangedListener(object : TextWatcher{
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
+
+            }
+
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+
+            }
+
+            override fun afterTextChanged(s: Editable?) {
+                if (s.isNullOrEmpty()){
+                    viewmodel.getProveedores()
+                }else{
+                    viewmodel.filtrarListaProveedores(s.toString().trim())
+                }
+
+                adapter.notifyDataSetChanged()
+            }
+        })
     }
 
-    private fun alertDialogAddUpdate(accion:String){
+    private fun alertDialogAddUpdate(
+        accion:String,
+        nomProveedor: String = "",
+        telefono: String = "",
+        email: String = ""
+    ){
         val builder = AlertDialog.Builder(requireContext())
         val inflater = requireActivity().layoutInflater
         bindingAlertDialog = AlertDialogProveedorBinding.inflate(inflater)
@@ -65,11 +92,20 @@ class ProveedoresFragment : Fragment(R.layout.fragment_proveedores), ProveedorAd
 
         if (accion == "add"){
             builder.setTitle("Agregar Proveedor")
+        }else{
+            builder.setTitle("Editar Proveedor")
         }
 
         val etNomProveedor = bindingAlertDialog.etNomProveedor
         val etTelefono = bindingAlertDialog.etTelefono
         val etEmail = bindingAlertDialog.etEmail
+
+        if (accion == "update"){
+            etNomProveedor.setText(nomProveedor)
+            etNomProveedor.isEnabled = false
+            etTelefono.setText(telefono)
+            etEmail.setText(email)
+        }
 
         builder.setPositiveButton("ACEPTAR"){_,_ ->
 
@@ -123,6 +159,6 @@ class ProveedoresFragment : Fragment(R.layout.fragment_proveedores), ProveedorAd
     }
 
     override fun editarProveedor(prov: Proveedor) {
-        //TODO("Not yet implemented")
+        alertDialogAddUpdate("update", prov.nomProveedor, prov.telefono, prov.email)
     }
 }
