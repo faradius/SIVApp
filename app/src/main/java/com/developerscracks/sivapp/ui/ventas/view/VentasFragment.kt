@@ -68,6 +68,11 @@ class VentasFragment : Fragment(R.layout.fragment_ventas), VentaAdapter.OnItemCl
                 barcodeLauncher.launch(ScanOptions())
             }
         }
+
+        binding.ibtnBuscar.setOnClickListener {
+            viewModel.validarCampo(binding.etCodBarr.text.toString().trim())
+            adapter.notifyDataSetChanged()
+        }
     }
 
     private fun setupRecyclerView() {
