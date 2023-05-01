@@ -23,6 +23,8 @@ class VentasFragment : Fragment(R.layout.fragment_ventas), VentaAdapter.OnItemCl
 
     private lateinit var viewModel: VentasViewModel
 
+    private var cambio = 0.0
+
     private var codigoLeido = ""
     private val barcodeLauncher = registerForActivityResult(ScanContract()){result->
         codigoLeido = ""
@@ -42,6 +44,23 @@ class VentasFragment : Fragment(R.layout.fragment_ventas), VentaAdapter.OnItemCl
         viewModel = ViewModelProvider(this)[VentasViewModel::class.java]
 
         setupRecyclerView()
+
+        viewModel.listaProductos.observe(viewLifecycleOwner){
+            adapter.listaProductos = it as ArrayList<ProductoVenta>
+            adapter.notifyDataSetChanged()
+        }
+
+        viewModel.mensaje.observe(viewLifecycleOwner){
+            Toasty.info(requireContext(), it, Toasty.LENGTH_SHORT, true).show()
+        }
+
+        viewModel.cambio.observe(viewLifecycleOwner){
+            cambio = it
+        }
+
+        viewModel.totalVenta.observe(viewLifecycleOwner){
+            binding.tvTotal.text = "$it"
+        }
 
         binding.ibtnEscanear.setOnClickListener {
             val isPermiso = viewModel.checkCamaraPermiso(requireActivity())
