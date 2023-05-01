@@ -5,56 +5,63 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.ViewModelProvider
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.developerscracks.sivapp.R
+import com.developerscracks.sivapp.data.model.venta.ProductoVenta
+import com.developerscracks.sivapp.databinding.FragmentVentasBinding
+import com.developerscracks.sivapp.ui.ventas.viewmodel.VentasViewModel
+import com.journeyapps.barcodescanner.ScanContract
+import com.journeyapps.barcodescanner.ScanOptions
+import es.dmoral.toasty.Toasty
 
-// TODO: Rename parameter arguments, choose names that match
-// the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-private const val ARG_PARAM1 = "param1"
-private const val ARG_PARAM2 = "param2"
+class VentasFragment : Fragment(R.layout.fragment_ventas), VentaAdapter.OnItemClicked {
 
-/**
- * A simple [Fragment] subclass.
- * Use the [VentasFragment.newInstance] factory method to
- * create an instance of this fragment.
- */
-class VentasFragment : Fragment() {
-    // TODO: Rename and change types of parameters
-    private var param1: String? = null
-    private var param2: String? = null
+    private lateinit var binding: FragmentVentasBinding
+    private lateinit var adapter: VentaAdapter
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        arguments?.let {
-            param1 = it.getString(ARG_PARAM1)
-            param2 = it.getString(ARG_PARAM2)
+    private lateinit var viewModel: VentasViewModel
+
+    private var codigoLeido = ""
+    private val barcodeLauncher = registerForActivityResult(ScanContract()){result->
+        codigoLeido = ""
+        if (result.contents == null){
+            Toasty.error(requireContext(), "CANCELADO", Toasty.LENGTH_SHORT, true).show()
+        }else{
+            codigoLeido = result.contents.toString()
+            binding.etCodBarr.setText(codigoLeido)
         }
     }
 
-    override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_ventas, container, false)
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        binding = FragmentVentasBinding.bind(view)
+        (activity as AppCompatActivity).supportActionBar!!.title = "Ventas"
+
+        viewModel = ViewModelProvider(this)[VentasViewModel::class.java]
+
+        setupRecyclerView()
+
+        binding.ibtnEscanear.setOnClickListener {
+            val isPermiso = viewModel.checkCamaraPermiso(requireActivity())
+            if (isPermiso){
+                barcodeLauncher.launch(ScanOptions())
+            }
+        }
     }
 
-    companion object {
-        /**
-         * Use this factory method to create a new instance of
-         * this fragment using the provided parameters.
-         *
-         * @param param1 Parameter 1.
-         * @param param2 Parameter 2.
-         * @return A new instance of fragment VentasFragment.
-         */
-        // TODO: Rename and change types and number of parameters
-        @JvmStatic
-        fun newInstance(param1: String, param2: String) =
-            VentasFragment().apply {
-                arguments = Bundle().apply {
-                    putString(ARG_PARAM1, param1)
-                    putString(ARG_PARAM2, param2)
-                }
-            }
+    private fun setupRecyclerView() {
+        binding.rvVentaProductos.layoutManager = LinearLayoutManager(requireActivity())
+        adapter = VentaAdapter(arrayListOf(), this)
+        binding.rvVentaProductos.adapter = adapter
+    }
+
+    override fun agregarProducto(producto: ProductoVenta) {
+
+    }
+
+    override fun quitarProducto(producto: ProductoVenta) {
+
     }
 }
