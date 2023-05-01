@@ -82,10 +82,12 @@ class VentasFragment : Fragment(R.layout.fragment_ventas), VentaAdapter.OnItemCl
     }
 
     override fun agregarProducto(producto: ProductoVenta) {
-
+        viewModel.agregarProducto(producto)
+        adapter.notifyDataSetChanged()
     }
 
     override fun quitarProducto(producto: ProductoVenta) {
-
+        viewModel.quitarProducto(producto)
+        adapter.notifyDataSetChanged()
     }
 }
