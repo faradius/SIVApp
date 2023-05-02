@@ -16,7 +16,7 @@ import com.journeyapps.barcodescanner.ScanContract
 import com.journeyapps.barcodescanner.ScanOptions
 import es.dmoral.toasty.Toasty
 
-class VentasFragment : Fragment(R.layout.fragment_ventas), VentaAdapter.OnItemClicked {
+class VentasFragment : Fragment(R.layout.fragment_ventas) {
 
     private lateinit var binding: FragmentVentasBinding
     private lateinit var adapter: VentaAdapter
@@ -26,11 +26,11 @@ class VentasFragment : Fragment(R.layout.fragment_ventas), VentaAdapter.OnItemCl
     private var cambio = 0.0
 
     private var codigoLeido = ""
-    private val barcodeLauncher = registerForActivityResult(ScanContract()){result->
+    private val barcodeLauncher = registerForActivityResult(ScanContract()) { result ->
         codigoLeido = ""
-        if (result.contents == null){
+        if (result.contents == null) {
             Toasty.error(requireContext(), "CANCELADO", Toasty.LENGTH_SHORT, true).show()
-        }else{
+        } else {
             codigoLeido = result.contents.toString()
             binding.etCodBarr.setText(codigoLeido)
         }
@@ -45,26 +45,26 @@ class VentasFragment : Fragment(R.layout.fragment_ventas), VentaAdapter.OnItemCl
 
         setupRecyclerView()
 
-        viewModel.listaProductos.observe(viewLifecycleOwner){
+        viewModel.listaProductos.observe(viewLifecycleOwner) {
             adapter.listaProductos = it as ArrayList<ProductoVenta>
             adapter.notifyDataSetChanged()
         }
 
-        viewModel.mensaje.observe(viewLifecycleOwner){
+        viewModel.mensaje.observe(viewLifecycleOwner) {
             Toasty.info(requireContext(), it, Toasty.LENGTH_SHORT, true).show()
         }
 
-        viewModel.cambio.observe(viewLifecycleOwner){
+        viewModel.cambio.observe(viewLifecycleOwner) {
             cambio = it
         }
 
-        viewModel.totalVenta.observe(viewLifecycleOwner){
+        viewModel.totalVenta.observe(viewLifecycleOwner) {
             binding.tvTotal.text = "$it"
         }
 
         binding.ibtnEscanear.setOnClickListener {
             val isPermiso = viewModel.checkCamaraPermiso(requireActivity())
-            if (isPermiso){
+            if (isPermiso) {
                 barcodeLauncher.launch(ScanOptions())
             }
         }
@@ -77,17 +77,18 @@ class VentasFragment : Fragment(R.layout.fragment_ventas), VentaAdapter.OnItemCl
 
     private fun setupRecyclerView() {
         binding.rvVentaProductos.layoutManager = LinearLayoutManager(requireActivity())
-        adapter = VentaAdapter(arrayListOf(), this)
+        adapter = VentaAdapter(
+            listaProductos = arrayListOf(),
+            agregarProducto = { producto ->
+                viewModel.agregarProducto(producto)
+                adapter.notifyDataSetChanged()
+
+            },
+            quitarProducto = { producto ->
+                viewModel.quitarProducto(producto)
+                adapter.notifyDataSetChanged()
+            }
+        )
         binding.rvVentaProductos.adapter = adapter
-    }
-
-    override fun agregarProducto(producto: ProductoVenta) {
-        viewModel.agregarProducto(producto)
-        adapter.notifyDataSetChanged()
-    }
-
-    override fun quitarProducto(producto: ProductoVenta) {
-        viewModel.quitarProducto(producto)
-        adapter.notifyDataSetChanged()
     }
 }

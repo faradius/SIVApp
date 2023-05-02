@@ -8,7 +8,8 @@ import com.developerscracks.sivapp.databinding.ItemVentaBinding
 
 class VentaAdapter(
     var listaProductos: ArrayList<ProductoVenta>,
-    var onClick: OnItemClicked
+    var agregarProducto: (ProductoVenta) -> Unit,
+    var quitarProducto: (ProductoVenta) -> Unit
 ): RecyclerView.Adapter<VentaAdapter.ViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -23,11 +24,11 @@ class VentaAdapter(
         holder.tvTotal.text = (producto.precio * producto.cantidad).toString()
 
         holder.ibtnMas.setOnClickListener {
-            onClick.agregarProducto(producto)
+            agregarProducto(producto)
         }
 
         holder.ibtnMenos.setOnClickListener {
-            onClick.quitarProducto(producto)
+            quitarProducto(producto)
         }
     }
 
@@ -41,10 +42,5 @@ class VentaAdapter(
         val ibtnMas = itemBinding.ibtnMas
         val tvCantidad = itemBinding.tvCantidad
         val tvTotal = itemBinding.tvTotal
-    }
-
-    interface OnItemClicked{
-        fun agregarProducto(producto: ProductoVenta)
-        fun quitarProducto(producto: ProductoVenta)
     }
 }
