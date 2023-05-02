@@ -1,10 +1,12 @@
 package com.developerscracks.sivapp.ui.ventas.view
 
+import android.app.AlertDialog
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -73,6 +75,45 @@ class VentasFragment : Fragment(R.layout.fragment_ventas) {
             viewModel.validarCampo(binding.etCodBarr.text.toString().trim())
             adapter.notifyDataSetChanged()
         }
+
+        binding.btnRegistrarVenta.setOnClickListener {
+            viewModel.validarCamposVenta(
+                binding.etPago.text.toString().trim().toDouble(),
+                binding.tvTotal.text.toString().trim().toDouble()
+            )
+
+            val cambio = viewModel.isCambio(
+                binding.etPago.text.toString().trim().toDouble(),
+                binding.tvTotal.text.toString().trim().toDouble()
+            )
+
+            if (cambio){
+                alertDialogCambio()
+            }
+        }
+    }
+
+    private fun alertDialogCambio(){
+        val builder = AlertDialog.Builder(requireContext())
+        val inflater = requireActivity().layoutInflater
+
+        val vista = inflater.inflate(R.layout.alert_dialog_cambio, null)
+        builder.setView(vista)
+        builder.setCancelable(false)
+
+        val tvCambio = vista.findViewById(R.id.tvCambio) as TextView
+
+        tvCambio.text = viewModel.cambio.value.toString()
+
+        builder.setPositiveButton("ACEPTAR"){_,_->
+            binding.etCodBarr.setText("")
+            binding.etPago.setText("")
+            binding.tvTotal.text = "0.0"
+            viewModel.resetVenta()
+            adapter.notifyDataSetChanged()
+        }
+
+        builder.show()
     }
 
     private fun setupRecyclerView() {

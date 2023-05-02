@@ -93,37 +93,37 @@ class VentasViewModel : ViewModel() {
                             }
                         }
                     }
-                }else{
+                } else {
                     _mensaje.value = response.body()!!.mensaje
                 }
             }
         }
     }
 
-    fun calcularTotalVenta(){
+    fun calcularTotalVenta() {
         _totalVenta.value = 0.0
-        _listaProductos.value!!.forEach{
+        _listaProductos.value!!.forEach {
             _totalVenta.value = _totalVenta.value!! + (it.cantidad * it.precio)
         }
     }
 
-    fun agregarProducto(prodVenta: ProductoVenta){
-        _listaProductos.value!!.forEach{
-            if (it.codProducto == prodVenta.codProducto){
+    fun agregarProducto(prodVenta: ProductoVenta) {
+        _listaProductos.value!!.forEach {
+            if (it.codProducto == prodVenta.codProducto) {
                 it.cantidad += 1
                 calcularTotalVenta()
             }
         }
     }
 
-    fun quitarProducto(prodVenta: ProductoVenta){
-        _listaProductos.value!!.forEach{
-            if (it.codProducto == prodVenta.codProducto){
-                if (it.cantidad == 1){
+    fun quitarProducto(prodVenta: ProductoVenta) {
+        _listaProductos.value!!.forEach {
+            if (it.codProducto == prodVenta.codProducto) {
+                if (it.cantidad == 1) {
                     _listaProductos.value!!.remove(it)
                     calcularTotalVenta()
                     return
-                }else{
+                } else {
                     it.cantidad -= 1
                     calcularTotalVenta()
                     return
@@ -132,13 +132,14 @@ class VentasViewModel : ViewModel() {
         }
     }
 
-    fun validarCamposVenta(pago: Double, totalVenta: Double){
-        if (pago <= 0 || pago < totalVenta || totalVenta <= 0){
-            _mensaje.value = "Revisa la cantidad del pago ya que no puede ser menor al total o menor o igual a 0"
-        }else{
-            if (_listaProductos.value?.size == 0){
+    fun validarCamposVenta(pago: Double, totalVenta: Double) {
+        if (pago <= 0 || pago < totalVenta || totalVenta <= 0) {
+            _mensaje.value =
+                "Revisa la cantidad del pago ya que no puede ser menor al total o menor o igual a 0"
+        } else {
+            if (_listaProductos.value?.size == 0) {
                 _mensaje.value = "Debes poner productos en la lista"
-            }else{
+            } else {
                 registrarVenta(pago, totalVenta)
             }
         }
@@ -150,9 +151,9 @@ class VentasViewModel : ViewModel() {
         val fechaVenta = SimpleDateFormat("yyyy-MM-dd").format(Date())
 
         _listaProductos.value!!.forEach {
-            if (stringVenta == ""){
+            if (stringVenta == "") {
                 stringVenta = "${it.codProducto}_${it.cantidad}_${it.precio}"
-            }else{
+            } else {
                 stringVenta += ",${it.codProducto}_${it.cantidad}_${it.precio}"
             }
         }
@@ -164,31 +165,31 @@ class VentasViewModel : ViewModel() {
             totalVenta
         )
 
-        viewModelScope.launch(Dispatchers.IO){
+        viewModelScope.launch(Dispatchers.IO) {
             val response = RetrofitClient.webService.addVenta(datosSend)
-            withContext(Dispatchers.Main){
-                if (response.body()!!.codigo == "200"){
+            withContext(Dispatchers.Main) {
+                if (response.body()!!.codigo == "200") {
                     isCambio(pago, totalVenta)
                 }
             }
         }
     }
 
-    private fun isCambio(pago: Double, totalVenta: Double): Boolean {
-        return if ((pago - totalVenta) < 0.0){
+    fun isCambio(pago: Double, totalVenta: Double): Boolean {
+        return if ((pago - totalVenta) < 0.0) {
             _mensaje.value = "No puedes realizar la venta ya que el pago no cubre la totalidad"
             false
-        }else if ((pago - totalVenta) == 0.0){
+        } else if ((pago - totalVenta) == 0.0) {
             _cambio.value = 0.0
             _mensaje.value = "Gracias por la compra"
             true
-        }else{
+        } else {
             _cambio.value = pago - totalVenta
             true
         }
     }
 
-    fun resetVenta(){
+    fun resetVenta() {
         _listaProductos.value!!.clear()
     }
 }
